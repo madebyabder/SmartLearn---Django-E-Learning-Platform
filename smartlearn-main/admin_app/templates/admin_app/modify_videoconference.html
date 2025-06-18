@@ -1,0 +1,9 @@
+<h2>Modifier la visioconférence</h2>
+
+<form method="post">
+  {% csrf_token %}
+  <label for="is_cancelled">Annuler cette visioconférence :</label><br>
+  <input type="checkbox" name="is_cancelled" {% if videoconference.is_cancelled %}checked{% endif %}><br><br>
+
+  <button type="submit">Enregistrer les modifications</button>
+</form>

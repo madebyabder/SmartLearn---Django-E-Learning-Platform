@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gestion des Visioconférences</title>
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.2.0/fullcalendar.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.2.0/fullcalendar.min.js"></script>
+
+  <style>
+    :root {
+      --primary-color: #2563eb;
+      --primary-hover: #1d4ed8;
+      --success-color: #10b981;
+      --danger-color: #ef4444;
+      --warning-color: #f59e0b;
+      --bg-light: #f3f4f6;
+      --text-dark: #1f2937;
+      --text-muted: #6b7280;
+      --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --hover-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg-light);
+      margin: 0;
+      padding: 0;
+      color: var(--text-dark);
+      line-height: 1.6;
+    }
+
+    .page-header {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+      color: white;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      border-radius: 0 0 1rem 1rem;
+      box-shadow: var(--card-shadow);
+    }
+
+    .page-header h2 {
+      margin: 0;
+      font-size: 2.5rem;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .container {
+      display: flex;
+      gap: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    .left-panel {
+      width: 400px;
+      background: white;
+      padding: 1.5rem;
+      border-radius: 1rem;
+      box-shadow: var(--card-shadow);
+      height: calc(100vh - 200px);
+      overflow-y: auto;
+    }
+
+    .right-panel {
+      flex: 1;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      height: 600px;
+      max-width: 800px;
+    }
+
+    .event-item {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .event-item:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--hover-shadow);
+    }
+
+    .event-title {
+      font-weight: 600;
+      color: var(--text-dark);
+      font-size: 1.125rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .event-date {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .event-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .status-scheduled {
+      background-color: #dcfce7;
+      color: #16a34a;
+    }
+
+    .status-cancelled {
+      background-color: #fee2e2;
+      color: #dc2626;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      font-size: 0.875rem;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .btn-success {
+      background-color: var(--success-color);
+      color: white;
+    }
+
+    .btn-danger {
+      background-color: var(--danger-color);
+      color: white;
+    }
+
+    .btn-warning {
+      background-color: var(--warning-color);
+      color: white;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--card-shadow);
+    }
+
+    .add-event-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      margin-bottom: 1.5rem;
+      background-color: var(--success-color);
+      color: white;
+      font-weight: 500;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .add-event-btn:hover {
+      background-color: #059669;
+      transform: translateY(-2px);
+      box-shadow: var(--card-shadow);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 2rem;
+      background: #f8fafc;
+      border-radius: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .empty-state i {
+      font-size: 2rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .empty-state p {
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    @media (max-width: 1024px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .left-panel {
+        width: 100%;
+        height: auto;
+        max-height: 500px;
+      }
+
+      .right-panel {
+        height: 500px;
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+
+  {% include 'dashboard/navbar.html' %}
+  <div class="page-header">
+    <h2>Gestion des Visioconférences</h2>
+  </div>
+
+
+<div class="container">
+{% if request.user.role == "ADMIN" %}
+  <!-- Panel gauche : liste des événements -->
+  <div class="left-panel">
+    <a href="{% url 'admin_app:add_event' %}" class="add-event-btn">
+      <i class="fas fa-plus"></i>
+      Ajouter un événement
+    </a>
+
+    {% if events %}
+      {% for event in events %}
+        <div class="event-item">
+          <div class="event-title">{{ event.title }}</div>
+          <div class="event-date">
+            <i class="far fa-calendar-alt"></i>
+            {{ event.date|date:"d/m/Y H:i" }}
+          </div>
+          <div class="event-status {% if event.videoconference.is_cancelled %}status-cancelled{% else %}status-scheduled{% endif %}">
+            <i class="fas {% if event.videoconference.is_cancelled %}fa-times-circle{% else %}fa-check-circle{% endif %}"></i>
+            {% if event.videoconference.is_cancelled %}Annulé{% else %}Programmé{% endif %}
+          </div>
+          <div class="buttons">
+            <a href="{% url 'admin_app:event_details' event.id %}" class="btn btn-primary">
+              <i class="fas fa-info-circle"></i>
+              Détails
+            </a>
+            <a href="{% url 'admin_app:toggle_event_status' event.id %}" class="btn btn-warning">
+              <i class="fas {% if event.videoconference.is_cancelled %}fa-check{% else %}fa-ban{% endif %}"></i>
+              {% if event.videoconference.is_cancelled %}Programmer{% else %}Annuler{% endif %}
+            </a>
+            <button onclick="if(confirm('Êtes-vous sûr de vouloir supprimer cet événement ?')){window.location.href='{% url 'admin_app:delete_event' event.id %}'}" 
+                    class="btn btn-danger">
+              <i class="fas fa-trash"></i>
+              Supprimer
+            </button>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-state">
+        <i class="fas fa-calendar-times"></i>
+        <p>Aucun événement disponible</p>
+      </div>
+    {% endif %}
+  </div>
+{% endif %}
+  <!-- Panel droit : calendrier FullCalendar -->
+  <div class="right-panel">
+    <div id="calendar"></div>
+  </div>
+
+</div>
+
+<script>
+  $(document).ready(function() {
+    $('#calendar').fullCalendar({
+      header: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'month,agendaWeek,agendaDay,listMonth'
+      },
+      navLinks: true,
+      editable: false,
+      eventLimit: true,
+      height: 600,
+      events: [
+        {% for event in events %}
+          {
+            title: "{{ event.title|escapejs }}",
+            start: "{{ event.date|date:'Y-m-d\\TH:i:s' }}",
+            url: "{% url 'admin_app:event_details' event.id %}",
+            color: "{% if event.videoconference.is_cancelled %}#e74c3c{% else %}#27ae60{% endif %}"
+          }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+      ],
+      eventClick: function(event) {
+        if(event.url) {
+          window.location.href = event.url;
+          return false;
+        }
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,371 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mes cours</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1d4ed8;
+            --accent-color: #f59e0b;
+            --background-color: #f3f4f6;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --hover-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            background-color: var(--background-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .course-card {
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            cursor: pointer;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .course-image {
+            transition: transform 0.5s ease;
+            position: relative;
+        }
+
+        .course-card:hover .course-image {
+            transform: scale(1.05);
+        }
+
+        .course-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            display: flex;
+            align-items: flex-end;
+            padding: 1.5rem;
+        }
+
+        .course-card:hover .course-overlay {
+            opacity: 1;
+        }
+
+        .category-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            justify-content: center;
+            margin-bottom: 3rem;
+        }
+
+        .category-btn {
+            padding: 0.625rem 1.25rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid #e5e7eb;
+            background-color: white;
+            color: #374151;
+        }
+
+        .category-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--card-shadow);
+        }
+
+        .category-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .course-stats {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .rating i {
+            color: var(--accent-color);
+        }
+
+        .empty-state {
+            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+            padding: 3rem;
+            border-radius: 1rem;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            color: #9ca3af;
+            margin-bottom: 1rem;
+        }
+
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            padding-left: 3rem;
+            border-radius: 9999px;
+            border: 1px solid #e5e7eb;
+            background-color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            border-color: var(--primary-color);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .course-card {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .course-card:nth-child(2) { animation-delay: 0.1s; }
+        .course-card:nth-child(3) { animation-delay: 0.2s; }
+        .course-card:nth-child(4) { animation-delay: 0.3s; }
+        .course-card:nth-child(5) { animation-delay: 0.4s; }
+        .course-card:nth-child(6) { animation-delay: 0.5s; }
+    </style>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+    {% include 'dashboard/navbar.html' %}
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Search Bar -->
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-input" placeholder="Rechercher un cours..." id="courseSearch">
+        </div>
+
+        <!-- Category Filter -->
+        <div class="category-filter">
+            <button class="category-btn active" data-category="all">
+                <i class="fas fa-th-large mr-2"></i>Tous
+            </button>
+            <button class="category-btn" data-category="science">
+                <i class="fas fa-flask mr-2"></i>Science
+            </button>
+            <button class="category-btn" data-category="cybersecurity">
+                <i class="fas fa-shield-alt mr-2"></i>CyberSecurity
+            </button>
+            <button class="category-btn" data-category="languages">
+                <i class="fas fa-language mr-2"></i>Languages
+            </button>
+            <button class="category-btn" data-category="webdev">
+                <i class="fas fa-code mr-2"></i>Web Development
+            </button>
+            <button class="category-btn" data-category="ml">
+                <i class="fas fa-brain mr-2"></i>Machine Learning
+            </button>
+            {% for key, label in categories %}
+            <button class="category-btn" data-category="{{ key }}">
+                {% if key == 'programming' %}
+                    <i class="fas fa-laptop-code mr-2"></i>
+                {% elif key == 'design' %}
+                    <i class="fas fa-palette mr-2"></i>
+                {% elif key == 'business' %}
+                    <i class="fas fa-chart-line mr-2"></i>
+                {% elif key == 'marketing' %}
+                    <i class="fas fa-bullhorn mr-2"></i>
+                {% elif key == 'music' %}
+                    <i class="fas fa-music mr-2"></i>
+                {% elif key == 'photography' %}
+                    <i class="fas fa-camera mr-2"></i>
+                {% elif key == 'health' %}
+                    <i class="fas fa-heartbeat mr-2"></i>
+                {% elif key == 'finance' %}
+                    <i class="fas fa-coins mr-2"></i>
+                {% else %}
+                    <i class="fas fa-book mr-2"></i>
+                {% endif %}
+                {{ label }}
+            </button>
+            {% endfor %}
+        </div>
+
+        <!-- Course Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+            {% for cours in cours_list %}
+            <a href="{% url 'cours:cours_detail_public' cours.id %}"
+                class="course-card bg-white rounded-lg shadow-md overflow-hidden flex flex-col"
+                data-category="{{ cours.category|lower }}">
+                <div class="relative">
+                    {% if cours.image %}
+                    <img src="{{ cours.image.url }}" alt="{{ cours.title }}"
+                        class="course-image w-full h-48 object-cover" />
+                    {% else %}
+                    <img src="{% static 'img/logo11.png' %}" alt="Image par défaut"
+                        class="course-image w-full h-48 object-cover" />
+                    {% endif %}
+                    <div class="course-overlay">
+                        <div class="text-white">
+                            <span class="text-sm font-medium">Voir le cours</span>
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6 flex flex-col flex-grow justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            {% if cours.category %}
+                            <span class="bg-blue-100 text-blue-600 text-xs px-3 py-1 rounded-full">
+                                {{ cours.get_category_display }}
+                            </span>
+                            {% endif %}
+                            <div class="rating">
+                                <i class="fas fa-star"></i>
+                                <span>4.7</span>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2 text-gray-800">{{ cours.title }}</h3>
+                        {% if cours.description %}
+                        <p class="text-gray-600 mb-4">{{ cours.description|truncatechars:100 }}</p>
+                        {% else %}
+                        <p class="text-gray-600 mb-4">Pas de description disponible.</p>
+                        {% endif %}
+                    </div>
+                    <div class="course-stats">
+                        <div class="stat-item">
+                            <i class="fas fa-users"></i>
+                            <span>120 étudiants</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-clock"></i>
+                            <span>8 heures</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center mt-4">
+                        <img src="{% static 'img/pfp.png' %}" alt="{{ cours.teacher.get_full_name }}"
+                            class="w-8 h-8 rounded-full mr-2" />
+                        <span class="text-sm text-gray-600">{{ cours.teacher.get_full_name }}</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+
+        {% if not cours_list %}
+        <div class="empty-state mt-16">
+            <i class="fas fa-book-open"></i>
+            <h3 class="text-2xl font-bold text-gray-600 mb-4">Aucun cours trouvé</h3>
+            <p class="text-gray-500">Vous n'avez pas encore créé de cours.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Search functionality
+        const searchInput = document.getElementById('courseSearch');
+        const courseCards = document.querySelectorAll('.course-card');
+
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            
+            courseCards.forEach(card => {
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                const description = card.querySelector('p').textContent.toLowerCase();
+                
+                if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Category filter functionality
+        const categoryButtons = document.querySelectorAll('.category-btn');
+        
+        categoryButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                categoryButtons.forEach(btn => btn.classList.remove('active'));
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                const category = this.dataset.category;
+                
+                courseCards.forEach(card => {
+                    if (category === 'all' || card.dataset.category === category) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Add hover effect for course cards
+        courseCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+
+    {% include 'cours/chatbot.html' %}
+</body>
+
+</html>

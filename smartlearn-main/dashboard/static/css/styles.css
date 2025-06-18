@@ -1,0 +1,90 @@
+/* General Styling */
+.container {
+    max-width: 1200px;
+}
+
+/* Header Styling */
+.text-center h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.lead {
+    font-size: 1.1rem;
+    color: #6c757d;
+}
+
+/* Section Titles */
+.section-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    border-left: 5px solid #007bff;
+    padding-left: 15px;
+    margin-bottom: 1.5rem;
+}
+
+/* Course Cards */
+.card.course-card {
+    border: 1px solid #dee2e6;
+    border-left: 4px solid #0d6efd;
+    background-color: #f8f9fa;
+    transition: box-shadow 0.2s ease;
+}
+
+.card.course-card:hover {
+    box-shadow: 0 6px 16px rgba(0, 123, 255, 0.15);
+}
+
+/* Available Course Cards */
+.card.available-card {
+    border: 1px solid #dee2e6;
+    background-color: #ffffff;
+    transition: box-shadow 0.2s ease;
+}
+
+.card.available-card:hover {
+    box-shadow: 0 6px 16px rgba(13, 110, 253, 0.15);
+}
+
+/* Card Title */
+.card-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+/* Card Text */
+.card-text {
+    font-size: 0.95rem;
+    color: #6c757d;
+}
+
+/* Buttons */
+.btn {
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 10px 15px;
+    border-radius: 5px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+}
+
+.btn-outline-primary {
+    border: 2px solid #007bff;
+    color: #007bff;
+}
+
+.btn-primary:hover,
+.btn-outline-primary:hover {
+    background-color: #0056b3;
+    color: white;
+}
+
+/* Badge */
+.badge {
+    font-size: 0.85rem;
+    padding: 6px 10px;
+}

@@ -1,0 +1,95 @@
+{% load static %}
+{% load dict_extras %}
+
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Cours</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'css/navbar.css' %}" />
+
+    <style>
+        .course-card {
+            transition: all 0.3s ease;
+            border: 1px solid #e5e7eb;
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #2563eb 0%, #2563eb 30%, #facc15 100%);
+        }
+
+        .certificate-badge {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    {% include 'dashboard/navbar.html' %}
+
+    <!-- Hero Section -->
+    <div class="gradient-bg text-white py-16">
+        <div class="max-w-7xl mx-auto px-6">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4">Mes Cours</h1>
+            <p class="text-xl text-blue-100">Continuez votre apprentissage et suivez votre progression</p>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-6 py-12">
+        {% if cours_inscrits %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for cours in cours_inscrits %}
+            <div class="course-card bg-white rounded-xl overflow-hidden">
+                <div class="relative">
+                    {% if cours.image %}
+                    <img src="{{ cours.image.url }}" alt="{{ cours.title }}" class="w-full h-48 object-cover">
+                    {% else %}
+                    <img src="{% static 'img/logo11.png' %}" alt="Image par défaut" class="w-full h-48 object-cover">
+                    {% endif %}
+                    {% if cours.category %}
+                    <span
+                        class="absolute top-3 left-3 bg-blue-600 text-white text-xs px-3 py-1 rounded-full font-medium">
+                        {{ cours.get_category_display }}
+                    </span>
+                    {% endif %}
+                </div>
+                <div class="p-6 flex flex-col h-full justify-between">
+                    <div>
+                        <h3 class="font-bold text-xl text-gray-800 mb-2">{{ cours.title }}</h3>
+                        <p class="text-gray-600 text-sm mb-4">{{ cours.description|truncatechars:100 }}</p>
+                    </div>
+                    <div class="flex flex-col space-y-3">
+                        <a href="{% url 'cours:cours_detail_public' cours.id %}"
+                            class="block w-full py-3 bg-blue-600 text-white text-center rounded-lg font-medium hover:bg-blue-700 transition">
+                            Continuer le cours
+                        </a>
+                        
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="bg-white p-12 text-center rounded-xl shadow-sm">
+            <i class="fas fa-book-open text-5xl text-gray-300 mb-4"></i>
+            <h3 class="text-2xl font-bold text-gray-600 mb-2">Aucun cours suivi</h3>
+            <p class="text-gray-500 mb-6">Vous n'êtes pas encore inscrit à des cours.</p>
+            <a href="{% url 'cours:catalogue' %}"
+                class="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition">
+                Explorer les cours
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</body>
+
+</html>

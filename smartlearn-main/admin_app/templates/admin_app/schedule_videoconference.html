@@ -1,0 +1,11 @@
+<h2>Planifier une visioconférence</h2>
+<form method="post">
+  {% csrf_token %}
+  <label>Titre :</label><br>
+  <input type="text" name="title" required><br><br>
+
+  <label>Date et heure :</label><br>
+  <input type="datetime-local" name="date" required><br><br>
+
+  <button type="submit">Planifier</button>
+</form>

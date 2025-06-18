@@ -1,0 +1,19 @@
+<h3>{{ cours.title }} : {{ cours.description }}</h3>
+<ul>
+    {% for module in cours.modules.all %}
+    <li>
+        <!-- Use the details and summary tags for collapsible functionality -->
+        <details>
+            <summary>{{ module.title }}</summary>
+
+            <ul>
+                {% for content in module.titles.all %}
+                <li>
+                    {{ content.title }} - {{ content.description }}
+                </li>
+                {% endfor %}
+            </ul>
+        </details>
+    </li>
+    {% endfor %}
+</ul>

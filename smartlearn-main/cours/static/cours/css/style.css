@@ -1,0 +1,66 @@
+body {
+    background-color: #f3f4f6;
+    min-height: 100vh;
+    padding: 32px;
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+    padding: 16px;
+    background-color: white;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+}
+
+.course-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2563eb;
+}
+
+.progress-bar {
+    width: 100%;
+    background-color: #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    text-align: right;
+    padding-right: 8px;
+    font-size: 12px;
+    font-weight: bold;
+    color: white;
+    border-radius: 12px;
+    transition: width 0.7s ease-in-out;
+    background-image: linear-gradient(to right, #3b82f6, #2563eb);
+}
+
+.button {
+    display: inline-block;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.button.enroll {
+    background-color: #3b82f6;
+}
+
+.button.enroll:hover {
+    background-color: #2563eb;
+}
+
+.button.access {
+    background-color: #16a34a;
+}
+
+.button.access:hover {
+    background-color: #15803d;
+}

@@ -1,0 +1,18 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/register.css' %}">
+
+<div class="register-container">
+    <form method="post">
+        {% csrf_token %}
+        <!--form fields-->
+        {{ form.as_p }}
+
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            {{ form.errors }}
+        </div>
+        {% endif %}
+
+        <button type="submit" class="btn">S'inscrire</button>
+    </form>
+</div>

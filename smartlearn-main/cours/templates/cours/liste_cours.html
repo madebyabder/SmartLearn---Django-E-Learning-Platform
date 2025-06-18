@@ -1,0 +1,138 @@
+{% include 'dashboard/navbar.html' %}
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Liste des Cours</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-800 font-[Poppins]">
+
+    <div class="max-w-5xl mx-auto px-4 py-10">
+        <h2 class="text-3xl font-semibold text-center mb-8">Liste des Cours</h2>
+
+        {% if request.user.role == "ENSEIGNANT" %}
+        <div class="text-center mb-6">
+            <a href="{% url 'cours:add_cours' %}"
+                class="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded shadow">
+                Ajouter un cours
+            </a>
+        </div>
+        {% endif %}
+
+        {% if liste_cours %}
+        <div class="space-y-6">
+            {% for cours in liste_cours %}
+            <div class="bg-white rounded shadow p-4">
+                <details class="group">
+                    <summary class="cursor-pointer font-semibold text-lg group-open:text-blue-600 transition">
+                        {{ cours.title }}
+                    </summary>
+                    <div class="mt-4 space-y-4">
+                        <table class="w-full text-left border-separate border-spacing-y-2">
+                            <thead>
+                                <tr>
+                                    <th class="bg-blue-600 text-white px-4 py-2 rounded-l">Modules</th>
+                                    <th class="bg-blue-600 text-white px-4 py-2 rounded-r w-36">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for module in cours.modules.all %}
+                                <tr class="bg-gray-50 hover:shadow rounded transition">
+                                    <td class="px-4 py-2">
+                                        <details class="group">
+                                            <summary
+                                                class="cursor-pointer font-medium text-blue-700 group-open:text-blue-900">
+                                                {{ module.title }}
+                                            </summary>
+                                            <div class="mt-2">
+                                                <table class="w-full text-left border-separate border-spacing-y-2">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="bg-blue-100 px-3 py-2 rounded-l">Contenus</th>
+                                                            <th class="bg-blue-100 px-3 py-2 rounded-r w-32">Actions
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for content in module.contenus.all %}
+                                                        <tr class="bg-white hover:shadow rounded">
+                                                            <td class="px-3 py-2">{{ content.title }} - {{
+                                                                content.description }}</td>
+                                                            <td class="px-3 py-2">
+                                                                <form method="post"
+                                                                    action="{% url 'cours:delete_contenu' content.id %}">
+                                                                    {% csrf_token %}
+                                                                    <button type="submit"
+                                                                        onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce contenu ?');"
+                                                                        class="bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1 rounded shadow">
+                                                                        Supprimer
+                                                                    </button>
+                                                                </form>
+                                                            </td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                                <a href="{% url 'cours:add_contenu' module.id %}"
+                                                    class="mt-2 inline-block bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-1 rounded shadow">
+                                                    Ajouter un contenu
+                                                </a>
+                                            </div>
+                                        </details>
+                                    </td>
+                                    <td class="px-4 py-2">
+                                        <form method="post" action="{% url 'cours:delete_module' module.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit"
+                                                onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce module ?');"
+                                                class="bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1 rounded shadow w-full">
+                                                Supprimer
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                <tr>
+                                    <td colspan="2" class="text-center py-2">
+                                        <a href="{% url 'cours:add_module' cours.id %}"
+                                            class="bg-green-600 hover:bg-green-700 text-white font-medium px-5 py-2 rounded shadow">
+                                            Ajouter un module
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </details>
+
+                <div class="mt-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-end">
+                    {% if request.user.role == "ENSEIGNANT" %}
+                    <a href="{% url 'cours:modify_cours' cours.id %}"
+                        class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-4 py-2 rounded shadow">
+                        Modifier
+                    </a>
+                    {% endif %}
+                    <form method="post" action="{% url 'cours:delete_cours' cours.id %}">
+                        {% csrf_token %}
+                        <button type="submit" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce cours ?');"
+                            class="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded shadow">
+                            Supprimer
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-center text-lg text-gray-500 mt-16">Aucun cours disponible.</p>
+        {% endif %}
+    </div>
+
+</body>
+
+</html>

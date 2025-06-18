@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SmartLearn - Your E-Learning Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        .hero-gradient {
+            background: linear-gradient(135deg, #facc15 0%, #2563eb 10%, #2563eb 80%, #facc15 100%);
+            /* blue to yellow */
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-chip:hover {
+            background-color: #2563eb;
+            color: white;
+        }
+
+        .testimonial-card {
+            transition: all 0.3s ease;
+        }
+
+        .testimonial-card:hover {
+            transform: scale(1.03);
+        }
+
+        .mobile-menu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .mobile-menu.open {
+            max-height: 500px;
+        }
+    </style>
+</head>
+
+<body class="font-sans antialiased text-gray-800">
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-graduation-cap text-blue-600 text-2xl"></i>
+                <span class="text-xl font-bold text-blue-600">SmartLearn</span>
+            </div>
+            <div class="hidden md:flex space-x-8">
+                <a href="/" class="text-blue-600 font-medium">Accueil</a>
+                <a href="/cours/catalogue" class="hover:text-blue-600 transition">Cours</a>
+                {% if user.is_authenticated %}
+                {% if user.role.strip|lower == "enseignant" %}
+                <a href="{% url 'dashboard:enseignant_dashboard' %}" class="hover:text-blue-600 transition">Tableau de
+                    bord</a>
+                {% elif user.role.strip|lower == "admin" %}
+                <a href="{% url 'dashboard:admin_dashboard' %}" class="hover:text-blue-600 transition">Tableau de
+                    bord</a>
+                {% elif user.role.strip|lower == "apprenant" %}
+                <a href="{% url 'dashboard:apprenant_dashboard' %}" class="hover:text-blue-600 transition">Tableau de
+                    bord</a>
+                {% endif %}
+                {% else %}
+                <a href="/dashboard" class="hover:text-blue-600 transition">Tableau de bord</a>
+                {% endif %}
+            </div>
+            <div class="hidden md:flex items-center space-x-4">
+                {% if user.is_authenticated %}
+                <div class="relative">
+                    <button id="userMenuButton"
+                        class="flex items-center space-x-2 text-blue-600 hover:text-blue-700 focus:outline-none">
+                        <i class="fas fa-user-circle text-xl"></i>
+                        <span>{{ user.username }}</span>
+                        <i class="fas fa-chevron-down text-sm"></i>
+                    </button>
+                    <div id="userMenu" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden">
+                        <a href="{% url 'dashboard:profile' %}"
+                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <i class="fas fa-user mr-2"></i>Profil
+                        </a>
+                        <form method="post" action="{% url 'logout' %}" class="block">
+                            {% csrf_token %}
+                            <button type="submit"
+                                class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                                <i class="fas fa-sign-out-alt mr-2"></i>Déconnexion
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% else %}
+                <a href="/authentication/login"
+                    class="px-4 py-2 rounded-md hover:bg-gray-100 transition font-semibold">Se connecter</a>
+                <a href="/authentication/register"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition font-semibold">S'inscrire</a>
+                {% endif %}
+            </div>
+            <button id="mobile-menu-button" class="md:hidden text-gray-600 focus:outline-none">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+        </div>
+        <div id="mobile-menu" class="mobile-menu md:hidden bg-white px-4">
+            <div class="flex flex-col space-y-3 py-4">
+                <a href="/" class="text-blue-600 font-medium">Accueil</a>
+                <a href="/cours/catalogue" class="hover:text-blue-600 transition">Cours</a>
+                {% if user.is_authenticated %}
+                {% if user.role.strip|lower == "enseignant" %}
+                <a href="{% url 'dashboard:enseignant_dashboard' %}" class="hover:text-blue-600 transition">Tableau de
+                    bord</a>
+                {% elif user.role.strip|lower == "admin" %}
+                <a href="{% url 'dashboard:admin_dashboard' %}" class="hover:text-blue-600 transition">Tableau de
+                    bord</a>
+                {% elif user.role.strip|lower == "apprenant" %}
+                <a href="{% url 'dashboard:apprenant_dashboard' %}" class="hover:text-blue-600 transition">Tableau de
+                    bord</a>
+                {% endif %}
+                <div class="pt-2 border-t border-gray-200">
+                    <div class="flex items-center space-x-2 mb-2">
+                        <i class="fas fa-user-circle text-xl text-blue-600"></i>
+                        <span>{{ user.username }}</span>
+                    </div>
+                    <a href="{% url 'dashboard:profile' %}" class="block py-2 hover:text-blue-600">
+                        <i class="fas fa-user mr-2"></i>Profil
+                    </a>
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full text-left text-red-500 hover:text-red-700 py-2">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Déconnexion
+                        </button>
+                    </form>
+                </div>
+                {% else %}
+                <a href="/dashboard" class="hover:text-blue-600 transition">Tableau de bord</a>
+                <div class="pt-2 border-t border-gray-200">
+                    <a href="/authentication/login" class="block py-2 hover:text-blue-600">Se connecter</a>
+                    <a href="/authentication/register" class="block py-2 hover:text-blue-600">S'inscrire</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-gradient text-white relative overflow-hidden">
+        <div class="container mx-auto px-4 py-12 md:py-20">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0">
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">Empower Your <span
+                            class="text-yellow-300">Knowledge</span></h1>
+                    <p class="text-xl mb-8 opacity-90 max-w-lg">Access quality courses, quizzes, and learning materials
+                        anytime, anywhere with SmartLearn. Start your learning journey today.</p>
+                    <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+                        <a href="/authentication/register"
+                            class="px-8 py-3 bg-white text-blue-600 rounded-md font-semibold hover:bg-gray-100 transition duration-300 shadow-lg hover:shadow-white/30 text-center">
+                            Get Started <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                        <a href="/cours/catalogue"
+                            class="px-8 py-3 border-2 border-white rounded-md font-semibold hover:bg-white hover:bg-opacity-10 transition duration-300 text-center">
+                            <i class="fas fa-book-open mr-2"></i> Browse Courses
+                        </a>
+                    </div>
+                    <div class="mt-8 flex items-center space-x-4">
+                        <div class="flex -space-x-2">
+                            <img class="inline-block h-10 w-10 rounded-full ring-2 ring-white"
+                                src="https://img.a.transfermarkt.technology/portrait/big/598506-1723144724.jpg?lm=1" alt="User 1">
+                            <img class="inline-block h-10 w-10 rounded-full ring-2 ring-white"
+                                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2Ek9b91esphZwD60EdeGyqnml1pAwghoJU0ErzEKNMzBPlqeDFQ7vRKKZElJ9HdCHXDI&usqp=CAU" alt="User 2">
+                            <img class="inline-block h-10 w-10 rounded-full ring-2 ring-white"
+                                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkZRyCZWQ3J-r2jYWg4Y1L1ZhQcLEXkq8TiA&s" alt="User 3">
+                        </div>
+                        <div>
+                            <p class="text-sm opacity-80">Join <span class="font-bold">10,000+</span> happy learners</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="md:w-1/2 flex justify-center relative">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=80"
+                            alt="E-learning" class="rounded-xl shadow-2xl max-w-full h-auto z-10 relative">
+                        <div class="absolute -bottom-5 -left-5 bg-yellow-400 rounded-xl w-32 h-32 z-0"></div>
+                        <div class="absolute -top-5 -right-5 bg-pink-500 rounded-xl w-32 h-32 z-0"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Popular Courses -->
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-4">Cours Populaires</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Découvrez les cours les plus appréciés créés par nos
+                    experts.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Course cards: Replace these with your real dynamic courses -->
+                <div
+                    class="course-card bg-white rounded-lg shadow-md overflow-hidden transition duration-300 hover:shadow-lg hover:-translate-y-1">
+                    <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80"
+                        alt="Course 1" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="bg-blue-100 text-blue-600 text-xs px-3 py-1 rounded-full">Développement</span>
+                            <span class="text-yellow-500">
+                                <i class="fas fa-star"></i> 4.7
+                            </span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Développement Web Full Stack</h3>
+                        <p class="text-gray-600 mb-4">Maîtrisez HTML, CSS, JavaScript, React et Node.js.</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Instructor"
+                                    class="w-8 h-8 rounded-full mr-2">
+                                <span class="text-sm">Ali Elwafy</span>
+                            </div>
+                        
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="course-card bg-white rounded-lg shadow-md overflow-hidden transition duration-300 hover:shadow-lg hover:-translate-y-1">
+                    <img src="https://d3caycb064h6u1.cloudfront.net/wp-content/uploads/2025/02/what-is-machine-learning-and-machine-learning-techniques-67bc2a273a4f0-e1740981449660.webp"
+                        alt="Course 2" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="bg-green-100 text-green-600 text-xs px-3 py-1 rounded-full">Data Science</span>
+                            <span class="text-yellow-500">
+                                <i class="fas fa-star"></i> 4.9
+                            </span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Analyse de données & Machine Learning</h3>
+                        <p class="text-gray-600 mb-4">Maîtrisez Python, Pandas et TensorFlow.</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Instructor"
+                                    class="w-8 h-8 rounded-full mr-2">
+                                <span class="text-sm">Reda Hadarbach</span>
+                            </div>
+            
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="course-card bg-white rounded-lg shadow-md overflow-hidden transition duration-300 hover:shadow-lg hover:-translate-y-1">
+                    <img src="https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&w=800&q=80"
+                        alt="Course 3" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="bg-purple-100 text-purple-600 text-xs px-3 py-1 rounded-full">Marketing</span>
+                            <span class="text-yellow-500">
+                                <i class="fas fa-star"></i> 4.8
+                            </span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Marketing Digital Essentiel</h3>
+                        <p class="text-gray-600 mb-4">Bases SEO, médias sociaux, et marketing de contenu.</p>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center">
+                                <img src="https://randomuser.me/api/portraits/men/75.jpg" alt="Instructor"
+                                    class="w-8 h-8 rounded-full mr-2">
+                                <span class="text-sm">Ahizoune Abderrahmane</span>
+                            </div>
+         
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-10">
+                <a href="/cours/catalogue"
+                    class="px-6 py-3 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 transition">Voir
+                    tous les cours</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories -->
+    <section class="py-16">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-4">Catégories</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Trouvez le cours parfait dans votre catégorie préférée</p>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                <div
+                    class="category-chip bg-white p-4 rounded-lg shadow-sm text-center cursor-pointer transition hover:bg-blue-700 hover:text-white">
+                    <div
+                        class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3 hover:bg-blue-700">
+                        <i class="fas fa-laptop-code text-blue-600 text-2xl"></i>
+                    </div>
+                    <h3 class="font-medium">Développement</h3>
+                </div>
+
+                <div
+                    class="category-chip bg-white p-4 rounded-lg shadow-sm text-center cursor-pointer transition hover:bg-green-700 hover:text-white">
+                    <div
+                        class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3 hover:bg-green-700">
+                        <i class="fas fa-chart-line text-green-600 text-2xl"></i>
+                    </div>
+                    <h3 class="font-medium">Business</h3>
+                </div>
+
+                <div
+                    class="category-chip bg-white p-4 rounded-lg shadow-sm text-center cursor-pointer transition hover:bg-red-700 hover:text-white">
+                    <div
+                        class="bg-red-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3 hover:bg-red-700">
+                        <i class="fas fa-calculator text-red-600 text-2xl"></i>
+                    </div>
+                    <h3 class="font-medium">Finance</h3>
+                </div>
+
+                <div
+                    class="category-chip bg-white p-4 rounded-lg shadow-sm text-center cursor-pointer transition hover:bg-purple-700 hover:text-white">
+                    <div
+                        class="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3 hover:bg-purple-700">
+                        <i class="fas fa-bullhorn text-purple-600 text-2xl"></i>
+                    </div>
+                    <h3 class="font-medium">Marketing</h3>
+                </div>
+
+                <div
+                    class="category-chip bg-white p-4 rounded-lg shadow-sm text-center cursor-pointer transition hover:bg-yellow-700 hover:text-white">
+                    <div
+                        class="bg-yellow-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3 hover:bg-yellow-700">
+                        <i class="fas fa-camera text-yellow-600 text-2xl"></i>
+                    </div>
+                    <h3 class="font-medium">Photographie</h3>
+                </div>
+
+                <div
+                    class="category-chip bg-white p-4 rounded-lg shadow-sm text-center cursor-pointer transition hover:bg-pink-700 hover:text-white">
+                    <div
+                        class="bg-pink-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3 hover:bg-pink-700">
+                        <i class="fas fa-music text-pink-600 text-2xl"></i>
+                    </div>
+                    <h3 class="font-medium">Musique</h3>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-4">Pourquoi choisir SmartLearn ?</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Découvrez les fonctionnalités uniques qui rendent
+                    SmartLearn
+                    exceptionnel.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="text-center p-6">
+                    <div class="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-play-circle text-blue-600 text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Apprenez n'importe quand</h3>
+                    <p class="text-gray-600">Suivez vos cours et quiz à votre rythme, où que vous soyez.</p>
+                </div>
+
+                <div class="text-center p-6">
+                    <div class="bg-green-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-users text-green-600 text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Collaborez & discutez</h3>
+                    <p class="text-gray-600">Participez à des forums et groupes pour partager vos connaissances.</p>
+                </div>
+
+                <div class="text-center p-6">
+                    <div class="bg-purple-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-certificate text-purple-600 text-3xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Obtenez des certificats reconnus</h3>
+                    <p class="text-gray-600">Montrez vos compétences grâce à des certificats officiels.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="py-16">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-4">Ce que disent nos apprenants</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Avis réels d'utilisateurs de SmartLearn</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div
+                    class="testimonial-card bg-white p-6 rounded-lg shadow-md overflow-hidden transition duration-300 hover:shadow-lg hover:-translate-y-1">
+                    <div class="flex items-center mb-4">
+                        <img src="https://randomuser.me/api/portraits/women/32.jpg" alt="Emily Johnson"
+                            class="w-12 h-12 rounded-full mr-4" />
+                        <div>
+                            <h4 class="font-bold">Bahjaoui Hamza</h4>
+                            <div class="text-yellow-500">
+                                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                                    class="fas fa-star"></i><i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600">"SmartLearn m'a aidé à développer mes compétences et à obtenir une
+                        certification facilement."</p>
+                </div>
+
+                <div
+                    class="testimonial-card bg-white p-6 rounded-lg shadow-md overflow-hidden transition duration-300 hover:shadow-lg hover:-translate-y-1">
+                    <div class="flex items-center mb-4">
+                        <img src="https://randomuser.me/api/portraits/men/54.jpg" alt="David Chen"
+                            class="w-12 h-12 rounded-full mr-4" />
+                        <div>
+                            <h4 class="font-bold">Laaouina Saad</h4>
+                            <div class="text-yellow-500">
+                                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                                    class="fas fa-star"></i><i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600">"Les instructeurs sont excellents et les supports de cours bien
+                        structurés."</p>
+                </div>
+
+                <div
+                    class="testimonial-card bg-white p-6 rounded-lg shadow-md overflow-hidden transition duration-300 hover:shadow-lg hover:-translate-y-1">
+                    <div class="flex items-center mb-4">
+                        <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Sarah Williams"
+                            class="w-12 h-12 rounded-full mr-4" />
+                        <div>
+                            <h4 class="font-bold">Mezzane Salah</h4>
+                            <div class="text-yellow-500">
+                                <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                                    class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-gray-600">"Chaque cours sur SmartLearn a dépassé mes attentes."</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="py-20 bg-blue-600 text-white">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-6">Prêt à commencer à apprendre ?</h2>
+            <p class="text-xl mb-8 max-w-2xl mx-auto opacity-90">Rejoignez des milliers d'apprenants qui progressent
+                grâce à nos cours.</p>
+            <a href="/authentication/register"
+                class="inline-block px-8 py-3 bg-white text-blue-600 rounded-md font-bold hover:bg-gray-100 transition">Commencer
+                maintenant</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white pt-16 pb-8">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fas fa-graduation-cap text-blue-400 text-2xl"></i>
+                        <span class="text-xl font-bold">SmartLearn</span>
+                    </div>
+                    <p class="text-gray-400 mb-4">La meilleure plateforme pour apprendre de nouvelles compétences et
+                        avancer
+                        dans votre carrière.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i
+                                class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i
+                                class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white transition"><i
+                                class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-bold mb-4">Entreprise</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">À propos</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Carrières</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Blog</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Presse</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-bold mb-4">Support</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Centre d'aide</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Conditions
+                                d'utilisation</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Politique de
+                                confidentialité</a>
+                        </li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Contactez-nous</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-bold mb-4">Newsletter</h3>
+                    <p class="text-gray-400 mb-4">Abonnez-vous pour recevoir les nouveautés et mises à jour.</p>
+                    <div class="flex">
+                        <input type="email" placeholder="Votre email"
+                            class="px-4 py-2 rounded-l-md w-full text-gray-900 focus:outline-none" />
+                        <button
+                            class="px-4 py-2 bg-blue-600 rounded-r-md hover:bg-blue-700 transition text-white font-semibold">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-8 border-t border-gray-800 text-center text-gray-400">
+                <p>© 2025 SmartLearn. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('open');
+        });
+
+        // User menu dropdown toggle
+        const userMenuButton = document.getElementById('userMenuButton');
+        const userMenu = document.getElementById('userMenu');
+
+        if (userMenuButton && userMenu) {
+            userMenuButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userMenu.classList.toggle('hidden');
+            });
+
+            // Close the dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!userMenuButton.contains(e.target) && !userMenu.contains(e.target)) {
+                    userMenu.classList.add('hidden');
+                }
+            });
+        }
+    </script>
+
+</body>
+
+</html>

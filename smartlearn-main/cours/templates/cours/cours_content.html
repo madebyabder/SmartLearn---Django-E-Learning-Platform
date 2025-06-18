@@ -1,0 +1,284 @@
+{% include 'dashboard/navbar.html' %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ cours.title }} - Contenu du cours</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .course-header {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .modules-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .module-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .module-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .module-header {
+            padding: 1.5rem;
+            background: #f8f9fa;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .module-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .module-content {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .module-card.active .module-content {
+            max-height: 2000px;
+            transition: max-height 0.5s ease-in;
+        }
+
+        .content-item {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .content-item:last-child {
+            border-bottom: none;
+        }
+
+        .content-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .module-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .module-card.active .module-icon {
+            transform: rotate(180deg);
+        }
+
+        .locked-module {
+            opacity: 0.7;
+            position: relative;
+        }
+
+        .locked-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
+
+        .quiz-button {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .quiz-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            color: white;
+        }
+
+        .progress-indicator {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            color: #6c757d;
+        }
+
+        .progress-indicator.completed {
+            background: #10b981;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .modules-container {
+                padding: 10px;
+            }
+            
+            .module-header h2 {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="course-header">
+        <div class="container">
+            <div class="d-flex align-items-center mb-3">
+                <a href="{% url 'cours:cours_detail_public' cours.id %}" class="text-white text-decoration-none">
+                    <i class="fas fa-arrow-left me-2"></i> Retour au cours
+                </a>
+            </div>
+            <h1 class="mb-2">{{ cours.title }}</h1>
+            <p class="lead mb-0">{{ cours.description }}</p>
+        </div>
+    </div>
+
+    <div class="modules-container">
+        {% for module, is_accessible in modules_with_access %}
+        <div class="module-card {% if not is_accessible %}locked-module{% endif %}" data-module-id="{{ module.id }}">
+            <div class="module-header" onclick="toggleModule(this)">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="progress-indicator {% if module.is_completed %}completed{% endif %}">
+                        {% if module.is_completed %}
+                        <i class="fas fa-check"></i>
+                        {% else %}
+                        {{ module.order_position }}
+                        {% endif %}
+                    </div>
+                    <h2>Module {{ module.order_position }}: {{ module.title }}</h2>
+                </div>
+                <i class="fas fa-chevron-down module-icon"></i>
+            </div>
+            
+            {% if is_accessible %}
+            <div class="module-content">
+                {% for contenu in module.contenus.all %}
+                <div class="content-item">
+                    <h4 class="mb-3">{{ contenu.title }}</h4>
+                    <p class="text-muted mb-4">{{ contenu.description }}</p>
+
+                    {% if contenu.video %}
+                    <div class="video-container">
+                        {% if contenu.video_embed_url %}
+                        <iframe src="{{ contenu.video_embed_url }}" 
+                                title="{{ contenu.title }}" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen></iframe>
+                        {% else %}
+                        <div class="alert alert-warning m-0">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Le format de la vidéo n'est pas supporté. Veuillez utiliser une URL YouTube valide.
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    {% if contenu.pdf %}
+                    <div class="mt-3">
+                        <a href="{{ contenu.pdf.url }}" class="btn btn-outline-primary" target="_blank">
+                            <i class="fas fa-file-pdf me-2"></i> Télécharger le PDF
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <div class="p-4 text-end">
+                    <a href="{% url 'cours:take_quiz' module.id %}" class="quiz-button">
+                        <i class="fas fa-trophy"></i>
+                        Passer le quiz de ce module
+                    </a>
+                </div>
+            </div>
+            {% else %}
+            <div class="locked-overlay">
+                <div class="text-center p-4">
+                    <i class="fas fa-lock fa-2x mb-3 text-muted"></i>
+                    <p class="mb-0 text-muted">🔒 Ce module est verrouillé. Veuillez réussir le quiz du module précédent (≥ 60%).</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
+
+    <script>
+        function toggleModule(header) {
+            const moduleCard = header.parentElement;
+            moduleCard.classList.toggle('active');
+        }
+
+        // Initialize first module as active
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstModule = document.querySelector('.module-card:not(.locked-module)');
+            if (firstModule) {
+                firstModule.classList.add('active');
+            }
+        });
+    </script>
+</body>
+</html>

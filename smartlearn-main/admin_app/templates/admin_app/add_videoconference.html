@@ -1,0 +1,13 @@
+<h2>Ajouter une visioconférence</h2>
+
+<form method="post">
+  {% csrf_token %}
+  <label for="event_id">Choisir un événement :</label><br>
+  <select name="event_id" required>
+    {% for event in events %}
+      <option value="{{ event.id }}">{{ event.title }} - {{ event.date|date:"d/m/Y H:i" }}</option>
+    {% endfor %}
+  </select><br><br>
+
+  <button type="submit">Ajouter la visioconférence</button>
+</form>

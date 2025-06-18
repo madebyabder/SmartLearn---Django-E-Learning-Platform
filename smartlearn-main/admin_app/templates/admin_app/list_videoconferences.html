@@ -1,0 +1,23 @@
+
+
+<div class="container mt-5">
+    <h2>Liste des visioconférences</h2>
+    <table class="table table-dark mt-3">
+        <thead>
+            <tr>
+                <th>Titre</th>
+                <th>Date</th>
+                <th>Lien</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for vc in videoconfs %}
+                <tr>
+                    <td>{{ vc.title }}</td>
+                    <td>{{ vc.date }}</td>
+                    <td><a href="{{ vc.link }}" target="_blank">Rejoindre</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

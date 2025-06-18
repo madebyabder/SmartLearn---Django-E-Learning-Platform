@@ -1,0 +1,120 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartLearn</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+</head>
+
+<body class="bg-gray-100">
+
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <a href="{% url 'home' %}" class="flex items-center text-xl font-bold text-blue-600">
+                    <i class="fas fa-graduation-cap mr-2"></i> SmartLearn
+                </a>
+
+                <!-- Desktop Menu -->
+                <ul class="hidden md:flex items-center space-x-6 text-sm font-medium text-gray-700">
+                    {% if request.user.role.strip|lower == "enseignant" %}
+                    <li><a href="{% url 'dashboard:enseignant_dashboard' %}" class="hover:text-blue-600">Accueil</a>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'admin_app:calendar_events' %}">Les visioconférences</a></li>
+                    </li>
+                    {% elif request.user.role.strip|lower == "admin" %}
+                    <li><a href="{% url 'dashboard:admin_dashboard' %}" class="hover:text-blue-600">Accueil</a></li>
+                    {% elif request.user.role.strip|lower == "apprenant" %}
+                    <li><a href="{% url 'dashboard:apprenant_dashboard' %}" class="hover:text-blue-600">Accueil</a></li>
+                    {% else %}
+                    <li><a href="{% url 'home' %}" class="hover:text-blue-600">Accueil</a></li>
+                    {% endif %}
+
+                    {% if request.user.role == "ADMIN" %}
+                    <li><a href="{% url 'admin_app:list_users' %}" class="hover:text-blue-600">Utilisateurs</a></li>
+                     <li class="nav-item"><a class="nav-link" href="{% url 'admin_app:calendar_events' %}">Gérer les visioconférences</a></li>
+                    <li><a href="{% url 'admin_app:supervision_dashboard' %}" class="hover:text-blue-600">Supervision</a></li>
+                    {% endif %}
+
+                    {% if request.user.role.strip|lower != "apprenant" %}
+                    <li><a href="{% url 'cours:liste_cours' %}" class="hover:text-blue-600">Liste Cours</a></li>
+                    {% endif %}
+
+                    <li><a href="{% url 'cours:course_catalogue' %}" class="hover:text-blue-600">Catalogue Cours</a>
+                    </li>
+
+                    {% if request.user.role.strip|lower == "apprenant" %}
+                    <li><a href="{% url 'cours:mes_cours_apprenant' %}" class="hover:text-blue-600">Mes cours</a></li>
+                    {% endif %}
+
+                    <li><a href="{% url 'dashboard:profile' %}" class="hover:text-blue-600">Profil</a></li>
+
+                    <li>
+                        <form method="post" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="text-red-500 hover:text-red-700">Déconnexion</button>
+                        </form>
+                    </li>
+                </ul>
+
+                <!-- Mobile menu button -->
+                <button id="menu-toggle" class="md:hidden text-gray-600 text-2xl focus:outline-none">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden px-4 pb-4 space-y-2 bg-white">
+            {% if request.user.role.strip|lower == "enseignant" %}
+            <a href="{% url 'dashboard:enseignant_dashboard' %}" class="block py-2 hover:text-blue-600">Accueil</a>
+            {% elif request.user.role.strip|lower == "admin" %}
+            <a href="{% url 'dashboard:admin_dashboard' %}" class="block py-2 hover:text-blue-600">Accueil</a>
+            {% elif request.user.role.strip|lower == "apprenant" %}
+            <a href="{% url 'dashboard:apprenant_dashboard' %}" class="block py-2 hover:text-blue-600">Accueil</a>
+            {% else %}
+            <a href="{% url 'home' %}" class="block py-2 hover:text-blue-600">Accueil</a>
+            {% endif %}
+
+            {% if request.user.role == "ADMIN" %}
+            <a href="{% url 'admin_app:list_users' %}" class="block py-2 hover:text-blue-600">Utilisateurs</a>
+            <a href="{% url 'admin_app:supervision_dashboard' %}" class="block py-2 hover:text-blue-600">Supervision</a>
+            {% endif %}
+
+            {% if request.user.role.strip|lower != "apprenant" %}
+            <a href="{% url 'cours:liste_cours' %}" class="block py-2 hover:text-blue-600">Liste Cours</a>
+            {% endif %}
+
+            <a href="{% url 'cours:course_catalogue' %}" class="block py-2 hover:text-blue-600">Catalogue Cours</a>
+
+            {% if request.user.role.strip|lower == "apprenant" %}
+            <a href="{% url 'cours:mes_cours_apprenant' %}" class="block py-2 hover:text-blue-600">Mes cours</a>
+            {% endif %}
+
+            <a href="{% url 'dashboard:profile' %}" class="block py-2 hover:text-blue-600">Profil</a>
+
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit"
+                    class="block w-full text-left text-red-500 hover:text-red-700 py-2">Déconnexion</button>
+            </form>
+        </div>
+    </nav>
+
+    <script>
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        menuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+    </script>
+
+</body>
+
+</html>

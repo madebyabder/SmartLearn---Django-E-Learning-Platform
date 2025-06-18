@@ -1,0 +1,32 @@
+{% include 'dashboard/navbar.html' %}
+
+<div class="container mt-5">
+    <h2>Quiz pour le module : {{ module.title }}</h2>
+
+    {% if questions %}
+    <form method="post">
+        {% csrf_token %}
+        {% for question in questions %}
+        <div class="mb-4">
+            <p><strong>{{ forloop.counter }}. {{ question.text }}</strong></p>
+            {% for choice in question.choices.all %}
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="question_{{ question.id }}"
+                    id="choice_{{ choice.id }}" value="{{ choice.id }}" required>
+                <label class="form-check-label" for="choice_{{ choice.id }}">
+                    {{ choice.text }}
+                </label>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-primary">📝 Soumettre le quiz</button>
+    </form>
+
+    {% else %}
+    <div class="alert alert-info mt-4">
+        Ce module ne contient actuellement aucune question de quiz.
+    </div>
+    {% endif %}
+</div>

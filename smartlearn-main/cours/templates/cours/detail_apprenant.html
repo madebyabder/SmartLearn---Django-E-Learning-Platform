@@ -1,0 +1,351 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta name="description" content="Détails du cours {{ cours.title }}">
+    <title>{{ cours.title }} - Détails</title>
+
+    <!-- External CSS -->
+    <link rel="stylesheet" href="{% static 'cours/css/style.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563eb',
+                        secondary: '#1d4ed8',
+                        accent: '#f59e0b',
+                    },
+                },
+            },
+        }
+    </script>
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            padding: 0;
+        }
+
+        .main-content {
+            flex: 1;
+            width: 100%;
+        }
+
+        .course-header {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: black;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            width: 100%;
+        }
+
+        .course-stats {
+            display: grid;
+            color: black;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 9999px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #059669);
+            border-radius: 9999px;
+            transition: width 1s ease-in-out;
+        }
+
+        .module-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .module-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .module-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .module-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .module-card.active .module-content {
+            max-height: 500px;
+            transition: max-height 0.5s ease-in;
+        }
+
+        .module-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .module-card.active .module-icon {
+            transform: rotate(180deg);
+        }
+
+        .action-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-button.primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .action-button.primary:hover {
+            background: #1d4ed8;
+        }
+
+        .action-button.success {
+            background: #10b981;
+            color: white;
+        }
+
+        .action-button.success:hover {
+            background: #059669;
+        }
+
+        .course-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .course-info-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .course-info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-black-100">
+    {% include 'dashboard/navbar.html' %}
+
+    <div class="main-content">
+    
+
+        <div class="container mx-auto px-4 py-8">
+            <h1 class="text-4xl font-bold mb-4">{{ cours.title }}</h1>
+            <p class="text-xl text-gray-600 mb-6">{{ cours.description }}</p>
+            <div class="course-info-grid">
+                <div>
+                    {% if cours.image %}
+                    <img src="{{ cours.image.url }}" alt="{{ cours.title }}" class="course-image">
+                    {% else %}
+                    <img src="https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                        alt="Default Course Image" class="course-image">
+                    {% endif %}
+
+                    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+                        <h2 class="text-2xl font-bold mb-4">À propos de ce cours</h2>
+                        <p class="text-gray-700 mb-6">{{ cours.description }}</p>
+
+                        {% if cours.category %}
+                        <div class="flex items-center gap-2 mb-4">
+                            <span class="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm font-medium">
+                                {{ cours.get_category_display }}
+                            </span>
+                        </div>
+                        {% endif %}
+
+                        <div class="flex items-center gap-4 mb-6">
+                            <img src="{% static 'img/pfp.png' %}" alt="{{ cours.teacher.get_full_name }}"
+                                class="w-12 h-12 rounded-full">
+                            <div>
+                                <div class="font-medium">{{ cours.teacher.get_full_name }}</div>
+                                <div class="text-sm text-gray-600">Instructeur</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h2 class="text-2xl font-bold mb-4">Modules du cours</h2>
+                        {% for module in cours.modules.all %}
+                        <div class="module-card" onclick="toggleModule(this)">
+                            <div class="module-header">
+                                <div>
+                                    <h3 class="font-semibold">{{ module.title }}</h3>
+                                    <p class="text-sm text-gray-600">{{ module.description|truncatechars:100 }}</p>
+                                </div>
+                                <i class="fas fa-chevron-down module-icon"></i>
+                            </div>
+                            <div class="module-content">
+                                <div class="mt-4 space-y-2">
+                                    {% for content in module.contents.all %}
+                                    <div class="flex items-center gap-2 text-gray-700">
+                                        <i class="fas fa-circle text-xs"></i>
+                                        <span>{{ content.title }}</span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div>
+                    <div class="bg-white rounded-lg shadow-md p-6 sticky top-8">
+                        {% if not inscrit %}
+                        <div class="mb-6">
+                            <h3 class="text-xl font-bold mb-4">Rejoignez ce cours</h3>
+                            <a href="{% url 'cours:inscrire_cours' cours.id %}"
+                                class="action-button primary w-full justify-center">
+                                <i class="fas fa-sign-in-alt"></i>
+                                S'inscrire au cours
+                            </a>
+                        </div>
+                        {% else %}
+                        <div class="mb-6">
+                            <h3 class="text-xl font-bold mb-4">Votre progression</h3>
+                            <div class="mb-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm font-medium text-gray-600">Progression globale</span>
+                                    <span class="text-sm font-medium text-gray-900">{{ progress_percent|default:0 }}%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-bar-fill" style="width: {{ progress_percent|default:0 }}%"></div>
+                                </div>
+                            </div>
+
+                            <div class="text-center mb-6">
+                                {% if progress_percent >= 100 %}
+                                <div class="text-green-600 font-medium">
+                                    <i class="fas fa-trophy mr-2"></i>Félicitations ! Cours complété
+                                </div>
+                                {% elif progress_percent >= 70 %}
+                                <div class="text-blue-600 font-medium">
+                                    <i class="fas fa-fire mr-2"></i>Presque fini !
+                                </div>
+                                {% elif progress_percent >= 30 %}
+                                <div class="text-blue-600 font-medium">
+                                    <i class="fas fa-rocket mr-2"></i>Bonne progression
+                                </div>
+                                {% elif progress_percent > 0 %}
+                                <div class="text-gray-600 font-medium">
+                                    <i class="fas fa-book mr-2"></i>Vous venez de commencer
+                                </div>
+                                {% else %}
+                                <div class="text-gray-600 font-medium">
+                                    <i class="fas fa-clock mr-2"></i>Aucun progrès encore
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <a href="{% url 'cours:cours_content' cours.id %}"
+                                class="action-button success w-full justify-center">
+                                <i class="fas fa-play-circle"></i>
+                                Continuer le cours
+                            </a>
+                        </div>
+                        {% endif %}
+
+                        <div class="border-t pt-6">
+                            <h3 class="text-lg font-semibold mb-4">Ce que vous allez apprendre</h3>
+                            <ul class="space-y-3">
+                                <li class="flex items-start gap-2">
+                                    <i class="fas fa-check text-green-600 mt-1"></i>
+                                    <span>Comprendre les concepts fondamentaux</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <i class="fas fa-check text-green-600 mt-1"></i>
+                                    <span>Pratiquer avec des exercices concrets</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <i class="fas fa-check text-green-600 mt-1"></i>
+                                    <span>Obtenir un certificat de complétion</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleModule(element) {
+            element.classList.toggle('active');
+        }
+
+        // Animate progress bar on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const progressBar = document.querySelector('.progress-bar-fill');
+            if (progressBar) {
+                const width = progressBar.style.width;
+                progressBar.style.width = '0';
+                setTimeout(() => {
+                    progressBar.style.width = width;
+                }, 100);
+            }
+        });
+    </script>
+</body>
+
+</html>

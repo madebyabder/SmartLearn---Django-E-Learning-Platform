@@ -1,0 +1,296 @@
+{% include 'dashboard/navbar.html' %}
+
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1d4ed8;
+            --accent-color: #f59e0b;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --background-color: #f3f4f6;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --hover-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: #2c3e50;
+        }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 0 0 1rem 1rem;
+            box-shadow: var(--card-shadow);
+        }
+
+        .dashboard-header h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .dashboard-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin: 0.5rem 0 0;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            padding: 0 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--primary-color);
+        }
+
+        .stat-card.users::before { background: var(--primary-color); }
+        .stat-card.courses::before { background: var(--accent-color); }
+        .stat-card.teachers::before { background: var(--success-color); }
+        .stat-card.students::before { background: var(--danger-color); }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .stat-card.users .stat-icon { color: var(--primary-color); }
+        .stat-card.courses .stat-icon { color: var(--accent-color); }
+        .stat-card.teachers .stat-icon { color: var(--success-color); }
+        .stat-card.students .stat-icon { color: var(--danger-color); }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .stat-change {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        .stat-change.positive {
+            color: var(--success-color);
+        }
+
+        .stat-change.negative {
+            color: var(--danger-color);
+        }
+
+        .recent-activity {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: var(--card-shadow);
+            margin: 0 1.5rem;
+        }
+
+        .recent-activity h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #1f2937;
+        }
+
+        .activity-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: white;
+        }
+
+        .activity-icon.user { background: var(--primary-color); }
+        .activity-icon.course { background: var(--accent-color); }
+        .activity-icon.teacher { background: var(--success-color); }
+        .activity-icon.student { background: var(--danger-color); }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        .activity-time {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-header {
+                padding: 1.5rem;
+            }
+
+            .dashboard-header h1 {
+                font-size: 2rem;
+            }
+
+            .stats-container {
+                grid-template-columns: 1fr;
+                padding: 0 1rem;
+            }
+
+            .recent-activity {
+                margin: 0 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-header">
+        <h1>Bienvenue, {{ user.username }}</h1>
+        <p>Voici votre espace administrateur</p>
+    </div>
+
+    <div class="stats-container">
+        <div class="stat-card users">
+            <i class="fas fa-users stat-icon"></i>
+            <div class="stat-value">{{ total_users }}</div>
+            <div class="stat-label">Utilisateurs Totaux</div>
+            <div class="stat-change positive">
+                <i class="fas fa-arrow-up"></i>
+                <span>12% ce mois</span>
+            </div>
+        </div>
+
+        <div class="stat-card courses">
+            <i class="fas fa-book stat-icon"></i>
+            <div class="stat-value">{{ total_courses }}</div>
+            <div class="stat-label">Cours Totaux</div>
+            <div class="stat-change positive">
+                <i class="fas fa-arrow-up"></i>
+                <span>8% ce mois</span>
+            </div>
+        </div>
+
+        <div class="stat-card teachers">
+            <i class="fas fa-chalkboard-teacher stat-icon"></i>
+            <div class="stat-value">{{ total_teachers }}</div>
+            <div class="stat-label">Enseignants</div>
+            <div class="stat-change positive">
+                <i class="fas fa-arrow-up"></i>
+                <span>5% ce mois</span>
+            </div>
+        </div>
+
+        <div class="stat-card students">
+            <i class="fas fa-user-graduate stat-icon"></i>
+            <div class="stat-value">{{ total_students }}</div>
+            <div class="stat-label">Apprenants</div>
+            <div class="stat-change positive">
+                <i class="fas fa-arrow-up"></i>
+                <span>15% ce mois</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="recent-activity">
+        <h2>Activités Récentes</h2>
+        <ul class="activity-list">
+            {% for activity in recent_activities %}
+            <li class="activity-item">
+                <div class="activity-icon {{ activity.type }}">
+                    <i class="fas {% if activity.type == 'user' %}fa-user{% elif activity.type == 'course' %}fa-book{% elif activity.type == 'teacher' %}fa-chalkboard-teacher{% else %}fa-user-graduate{% endif %}"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">{{ activity.title }}</div>
+                    <div class="activity-time">{{ activity.time }}</div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Add animation to stat cards
+        document.querySelectorAll('.stat-card').forEach((card, index) => {
+            card.style.animation = `fadeInUp 0.5s ease forwards ${index * 0.1}s`;
+        });
+
+        // Add hover effect to activity items
+        document.querySelectorAll('.activity-item').forEach(item => {
+            item.addEventListener('mouseenter', () => {
+                item.style.backgroundColor = '#f8f9fa';
+            });
+            item.addEventListener('mouseleave', () => {
+                item.style.backgroundColor = 'transparent';
+            });
+        });
+    </script>
+</body>
+
+</html>

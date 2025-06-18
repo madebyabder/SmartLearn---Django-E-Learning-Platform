@@ -1,0 +1,13 @@
+{% include 'dashboard/navbar.html' %}
+
+<div class="container mt-5 text-center">
+    <h2>Résultat du Quiz : {{ module.title }}</h2>
+    <p class="lead mt-3">
+        ✅ Vous avez obtenu {{ correct }} / {{ total }} bonnes réponses.
+    </p>
+    <h3 class="mt-4">Score final : {{ score }}%</h3>
+
+    <a href="{% url 'cours:cours_content' module.cours.id %}" class="btn btn-primary mt-4">
+        🔙 Retour au cours
+    </a>
+</div>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Détails de l'événement</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f7f9fc;
+      margin: 20px;
+      color: #333;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h2 {
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+    .status {
+      font-weight: bold;
+      font-size: 1.1em;
+      margin-bottom: 20px;
+    }
+    .status.programmed {
+      color: #27ae60;
+    }
+    .status.cancelled {
+      color: #e74c3c;
+    }
+    button {
+      padding: 10px 20px;
+      font-weight: 600;
+      font-size: 1em;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    button.toggle {
+      background-color: #f39c12;
+      color: white;
+    }
+    button.toggle:hover {
+      background-color: #d68910;
+    }
+    a.back {
+      display: inline-block;
+      margin-top: 20px;
+      text-decoration: none;
+      color: #3498db;
+    }
+    a.back:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Détails de l'événement : {{ event.title }}</h2>
+
+<p><strong>Date :</strong> {{ event.date|date:"d/m/Y H:i" }}</p>
+
+<p><strong>Enseignants :</strong>
+  {% if event.all %}
+    {% for enseignant in event.all %}
+      {{ enseignant.get_full_name }}{% if not forloop.last %}, {% endif %}
+    {% endfor %}
+  {% else %}
+    Aucun enseignant assigné.
+  {% endif %}
+</p>
+
+<p class="status {% if videoconf and videoconf.is_cancelled %}cancelled{% else %}programmed{% endif %}">
+ {% with videoconf=event.videoconference_set.first %}
+    {% if videoconf.is_cancelled %}
+        <span style="color: red; font-weight: bold;">Annulé</span>
+    {% else %}
+        <span style="color: green; font-weight: bold;">Programmé</span>
+    {% endif %}
+{% endwith %}
+</p>
+
+<a href="{% url 'admin_app:toggle_event_status' event.id %}">
+  <button class="toggle">
+    {% with videoconf=event.videoconference_set.first %}
+    {% if videoconf.is_cancelled %}
+        <span style="color: green; font-weight: bold;">Programmé</span>
+    {% else %}
+        <span style="color: red; font-weight: bold;">Annulé</span>
+    {% endif %}
+    {% endwith %}
+  </button>
+</a>
+
+<a href="{% url 'admin_app:calendar_events' %}" class="back">← Retour au calendrier</a>
+
+
+
+
+</body>
+</html>

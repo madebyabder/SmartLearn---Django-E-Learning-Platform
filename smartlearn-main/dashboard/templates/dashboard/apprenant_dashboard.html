@@ -1,0 +1,258 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tableau de bord Apprenant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{% static 'css/navbar.css' %}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 font-sans">
+
+    {% include 'dashboard/navbar.html' %}
+
+    <main class="max-w-7xl mx-auto px-6 py-10">
+        <!-- Welcome Message -->
+        <div
+            class="bg-gradient-to-r from-blue-600 to-yellow-700 text-white rounded-lg p-8 mb-12 shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center">
+            <div>
+                <h1 class="text-4xl font-extrabold mb-3">👋 Bonjour {{ user.first_name|default:user.username }} !</h1>
+                <p class="text-lg max-w-xl">Bienvenue sur votre tableau de bord. Continuez votre apprentissage ou
+                    explorez de
+                    nouveaux cours.</p>
+                <a href="{% url 'cours:course_catalogue' %}"
+                    class="mt-6 inline-block bg-white text-blue-700 px-6 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition">
+                    Explorez de nouveaux cours
+                </a>
+            </div>
+            <div class="mt-8 md:mt-0 flex items-center space-x-4 bg-white bg-opacity-20 px-6 py-4 rounded-lg">
+                <div
+                    class="bg-white bg-opacity-30 p-4 rounded-full flex items-center justify-center text-white shadow-md shadow-blue-700/50">
+                    <i class="fas fa-trophy text-3xl"></i>
+                </div>
+                <div>
+                    <div class="text-sm font-medium tracking-wide">Streak d'apprentissage</div>
+                    <div class="text-3xl font-extrabold">12 jours</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques -->
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+            <div
+                class="bg-white rounded-xl p-6 shadow-md border border-gray-200 flex items-center space-x-4 hover:shadow-lg transition-shadow">
+                <i class="fas fa-book-open text-blue-600 text-4xl"></i>
+                <div>
+                    <p class="text-gray-500 uppercase tracking-wider font-semibold text-xs">Cours disponibles</p>
+                    <p class="text-3xl font-extrabold text-gray-900 mt-1">{{ liste_cours|length }}</p>
+                </div>
+            </div>
+            <div
+                class="bg-white rounded-xl p-6 shadow-md border border-gray-200 flex items-center space-x-4 hover:shadow-lg transition-shadow">
+                <i class="fas fa-check-circle text-green-600 text-4xl"></i>
+                <div>
+                    <p class="text-gray-500 uppercase tracking-wider font-semibold text-xs">Cours suivis</p>
+                    <p class="text-3xl font-extrabold text-gray-900 mt-1">{{ cours_inscrits_ids|length }}</p>
+                </div>
+            </div>
+            <div
+                class="bg-white rounded-xl p-6 shadow-md border border-gray-200 flex items-center space-x-4 hover:shadow-lg transition-shadow">
+                <i class="fas fa-clock text-blue-600 text-4xl"></i>
+                <div>
+                    <p class="text-gray-500 uppercase tracking-wider font-semibold text-xs">Temps d’apprentissage</p>
+                    <p class="text-3xl font-extrabold text-gray-900 mt-1">12 h</p>
+                </div>
+            </div>
+            <div
+                class="bg-white rounded-xl p-6 shadow-md border border-gray-200 flex items-center space-x-4 hover:shadow-lg transition-shadow">
+                <i class="fas fa-trophy text-yellow-500 text-4xl"></i>
+                <div>
+                    <p class="text-gray-500 uppercase tracking-wider font-semibold text-xs">Certificats</p>
+                    <p class="text-3xl font-extrabold text-gray-900 mt-1">2</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-3xl font-bold text-gray-800">📚 Mes cours</h2>
+                <a href="{% url 'cours:course_catalogue' %}" class="text-blue-600 hover:underline font-semibold">Voir
+                    tout</a>
+            </div>
+
+            {% if liste_cours %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% with found_courses=0 %}
+                {% for cours in liste_cours %}
+                {% if cours.id in cours_inscrits_ids %}
+                {% with found_courses=found_courses|add:"1" %}
+                <div
+                    class="course-card bg-white border border-gray-200 rounded-xl overflow-hidden flex flex-col shadow-sm hover:shadow-lg transition transform hover:-translate-y-1 duration-300">
+                    <div class="relative h-48 bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                        {% if cours.image %}
+                        <img src="{{ cours.image.url }}" alt="Image du cours" class="w-full h-full object-cover" />
+                        {% else %}
+                        <img src="{% static 'img/logo11.png' %}" alt="Image par défaut"
+                            class="w-full h-full object-cover" />
+                        {% endif %}
+                        <div
+                            class="absolute top-3 right-3 bg-green-600 text-white text-xs px-3 py-1 rounded font-semibold shadow-md">
+                            {% if cours.category %}
+                            <span class="">
+                                {{ cours.get_category_display }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <h3 class="font-semibold text-xl text-gray-800 mb-3 truncate">{{ cours.title }}</h3>
+                        <p class="text-gray-600 text-sm mb-6 line-clamp-3">{{ cours.description }}</p>
+                        <div class="mt-auto flex justify-between items-center">
+                            <a href="{% url 'cours:cours_detail_public' cours.id %}"
+                                class="text-blue-600 hover:text-blue-800 font-semibold transition duration-150">Voir le
+                                cours</a>
+                        </div>
+                    </div>
+                </div>
+                {% endwith %}
+                {% endif %}
+                {% endfor %}
+
+                {% endwith %}
+            </div>
+            {% else %}
+            <div class="bg-white p-8 rounded-lg shadow text-center text-gray-500 text-lg">
+                Aucun cours disponible pour le moment.
+            </div>
+            {% endif %}
+        </section>
+
+        <!-- Progress & Activity -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-12">
+            <div
+                class="lg:col-span-2 bg-white rounded-xl p-8 shadow-md border border-gray-200 overflow-auto max-h-[32rem]">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-semibold text-gray-800">Progression</h2>
+                    <select
+                        class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option>Derniers 30 jours</option>
+                        <option>Derniers 3 mois</option>
+                        <option>Derniers 6 mois</option>
+                    </select>
+                </div>
+                <canvas id="progressChart" class="w-full h-64"></canvas>
+            </div>
+
+            <div class="bg-white rounded-xl p-8 shadow-md border border-gray-200 overflow-auto max-h-[32rem]">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-6">Activité récente</h2>
+                <div class="space-y-6">
+                    <div class="flex items-start">
+                        <div class="bg-blue-100 p-3 rounded-full mr-4 text-blue-600 shadow-inner">
+                            <i class="fas fa-play"></i>
+                        </div>
+                        <div>
+                            <div class="font-semibold">Leçon terminée</div>
+                            <div class="text-gray-500 text-sm">Data Science - Module 3</div>
+                            <div class="text-xs text-gray-400 mt-1">il y a 2 heures</div>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="bg-green-100 p-3 rounded-full mr-4 text-green-600 shadow-inner">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div>
+                            <div class="font-semibold">Quiz réussi</div>
+                            <div class="text-gray-500 text-sm">Développement Web - Quiz 2 (Score: 85%)</div>
+                            <div class="text-xs text-gray-400 mt-1">il y a 1 jour</div>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="bg-blue-100 p-3 rounded-full mr-4 text-blue-600 shadow-inner">
+                            <i class="fas fa-certificate"></i>
+                        </div>
+                        <div>
+                            <div class="font-semibold">Certificat obtenu</div>
+                            <div class="text-gray-500 text-sm">Développement Web Moderne</div>
+                            <div class="text-xs text-gray-400 mt-1">il y a 3 jours</div>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="bg-purple-100 p-3 rounded-full mr-4 text-purple-600 shadow-inner">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div>
+                            <div class="font-semibold">Inscription à un cours</div>
+                            <div class="text-gray-500 text-sm">Développement d'applications mobiles</div>
+                            <div class="text-xs text-gray-400 mt-1">il y a 1 semaine</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Sidebar toggle for mobile (if navbar has this)
+        const sidebar = document.querySelector('.sidebar');
+        const sidebarOpenBtn = document.getElementById('sidebarOpenBtn');
+        const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+
+        sidebarOpenBtn?.addEventListener('click', () => {
+            sidebar.classList.add('translate-x-0');
+        });
+        sidebarCloseBtn?.addEventListener('click', () => {
+            sidebar.classList.remove('translate-x-0');
+        });
+
+        // Chart.js setup
+        const ctx = document.getElementById('progressChart').getContext('2d');
+        const progressChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+                datasets: [
+                    {
+                        label: "Heures d'apprentissage",
+                        data: [5, 8, 6, 10, 12, 15, 18],
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    },
+                    {
+                        label: 'Cours terminés',
+                        data: [0, 0, 1, 1, 1, 2, 2],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: { mode: 'index', intersect: false }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

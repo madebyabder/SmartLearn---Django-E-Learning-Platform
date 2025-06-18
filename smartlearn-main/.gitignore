@@ -1,0 +1,31 @@
+# === Python general ===
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# === Django specific ===
+*.sqlite3
+db.sqlite3
+*.log
+media/
+local_settings.py
+
+# === Secrets ===
+.env
+
+# === Virtual Environment ===
+venv/
+
+# === OS specific ===
+.DS_Store
+Thumbs.db
+
+# === VSCode ===
+.vscode/
+
+# === Backup / temporary files ===
+*.bak
+*.swp
+*.swo
+*~

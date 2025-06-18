@@ -1,0 +1,484 @@
+{% load static %}
+
+<!-- Floating Chat Button -->
+<div id="chat-button" class="chat-button" onclick="toggleChat()">
+    <i class="fas fa-comments"></i>
+</div>
+
+<!-- Chat Widget -->
+<div id="chatbot-widget" class="chatbot-widget collapsed">
+    <div class="chatbot-header">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-robot me-2"></i>
+            <span>SmartLearn Assistant</span>
+        </div>
+        <i class="fas fa-times" id="chat-close-icon" onclick="toggleChat()"></i>
+    </div>
+    
+    <div class="chatbot-body" id="chat-body">
+        <div class="chat-messages" id="chat-messages">
+            <div class="message bot-message">
+                <div class="message-content">
+                    Bonjour ! Je suis votre assistant SmartLearn. Comment puis-je vous aider aujourd'hui ?
+                </div>
+            </div>
+        </div>
+        
+        <div class="chat-input-container">
+            <input type="text" id="chat-input" class="form-control" placeholder="Tapez votre message..." onkeypress="handleKeyPress(event)">
+            <button class="btn btn-primary" onclick="sendMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Floating Chat Button */
+.chat-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+.chat-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+}
+
+.chat-button i {
+    transition: transform 0.3s ease;
+}
+
+.chat-button.active i {
+    transform: rotate(360deg);
+}
+
+/* Chat Widget */
+.chatbot-widget {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 350px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 999;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+    pointer-events: none;
+}
+
+.chatbot-widget.active {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: all;
+}
+
+.chatbot-header {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chatbot-header i.fa-times {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.chatbot-header i.fa-times:hover {
+    transform: rotate(90deg);
+}
+
+.chatbot-body {
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+}
+
+.message {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    animation: messageSlide 0.3s ease;
+}
+
+@keyframes messageSlide {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message-content {
+    padding: 10px 15px;
+    border-radius: 15px;
+    max-width: 80%;
+    word-wrap: break-word;
+}
+
+.user-message {
+    align-items: flex-end;
+}
+
+.user-message .message-content {
+    background: #2563eb;
+    color: white;
+}
+
+.bot-message {
+    align-items: flex-start;
+}
+
+.bot-message .message-content {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+.chat-input-container {
+    padding: 15px;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    gap: 10px;
+}
+
+.chat-input-container input {
+    flex: 1;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 8px 12px;
+    transition: all 0.3s ease;
+}
+
+.chat-input-container input:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.chat-input-container button {
+    background: #2563eb;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 15px;
+    color: white;
+    transition: all 0.2s ease;
+}
+
+.chat-input-container button:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.typing-indicator {
+    display: flex;
+    gap: 4px;
+    padding: 10px 15px;
+    background: #f3f4f6;
+    border-radius: 15px;
+    width: fit-content;
+    animation: fadeIn 0.3s ease;
+}
+
+.typing-indicator span {
+    width: 8px;
+    height: 8px;
+    background: #9ca3af;
+    border-radius: 50%;
+    animation: typing 1s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 480px) {
+    .chatbot-widget {
+        width: calc(100% - 40px);
+        bottom: 90px;
+        right: 20px;
+        left: 20px;
+    }
+    
+    .chat-button {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+}
+</style>
+
+<script>
+let isChatOpen = false;
+
+// Course recommendations database
+const courseRecommendations = {
+    science: {
+        keywords: ['science', 'scientifique', 'physique', 'chimie', 'biologie', 'experience', 'laboratoire'],
+        courses: [
+            'Introduction à la Physique Quantique',
+            'Chimie Organique Avancée',
+            'Biologie Moléculaire'
+        ]
+    },
+    cybersecurity: {
+        keywords: ['cybersecurite', 'securite', 'hacking', 'piratage', 'protection', 'securiser', 'hacker'],
+        courses: [
+            'Fondamentaux de la Cybersécurité',
+            'Ethical Hacking',
+            'Sécurité des Réseaux'
+        ]
+    },
+    languages: {
+        keywords: ['langue', 'anglais', 'français', 'espagnol', 'apprendre une langue', 'traduction'],
+        courses: [
+            'Anglais des Affaires',
+            'Français pour Débutants',
+            'Espagnol Conversationnel'
+        ]
+    },
+    webdev: {
+        keywords: ['web', 'developpement web', 'site web', 'frontend', 'backend', 'html', 'css', 'javascript'],
+        courses: [
+            'Développement Web Full Stack',
+            'React.js Avancé',
+            'Node.js et Express'
+        ]
+    },
+    ml: {
+        keywords: ['machine learning', 'intelligence artificielle', 'ai', 'ml', 'deep learning', 'neural', 'donnees'],
+        courses: [
+            'Introduction au Machine Learning',
+            'Deep Learning avec Python',
+            'Analyse de Données avec Python'
+        ]
+    },
+    programming: {
+        keywords: ['programmation', 'coder', 'développement', 'python', 'java', 'c++', 'code'],
+        courses: [
+            'Python pour Débutants',
+            'Java Avancé',
+            'C++ et Programmation Orientée Objet'
+        ]
+    },
+    design: {
+        keywords: ['design', 'ui', 'ux', 'interface', 'graphique', 'créatif', 'photoshop', 'illustrator'],
+        courses: [
+            'Design UI/UX Moderne',
+            'Adobe Creative Suite',
+            'Design Graphique Digital'
+        ]
+    },
+    business: {
+        keywords: ['business', 'commerce', 'entreprise', 'management', 'gestion', 'marketing', 'vente'],
+        courses: [
+            'Fondamentaux du Business',
+            'Marketing Digital',
+            'Gestion de Projet Agile'
+        ]
+    }
+};
+
+// Enhanced knowledge base for the chatbot
+const knowledgeBase = {
+    greetings: {
+        patterns: ['bonjour', 'salut', 'hello', 'hi', 'hey'],
+        responses: [
+            'Bonjour ! Je peux vous aider à trouver des cours ou répondre à vos questions. Que recherchez-vous ?',
+            'Salut ! Je suis là pour vous aider à trouver le cours parfait. Que souhaitez-vous apprendre ?',
+            'Bonjour ! Je peux vous recommander des cours ou vous guider. Que cherchez-vous ?'
+        ]
+    },
+    help: {
+        patterns: ['aide', 'help', 'comment', 'comment faire', 'comment ça marche'],
+        responses: [
+            'Je peux vous aider à :\n- Trouver des cours adaptés à vos besoins\n- Vous recommander des formations\n- Comprendre comment s\'inscrire\n- Explorer les catégories\n- Résoudre des problèmes techniques',
+            'Voici ce que je peux faire pour vous :\n- Recommander des cours selon vos intérêts\n- Vous guider dans l\'inscription\n- Vous montrer les différentes catégories\n- Vous aider avec des problèmes techniques'
+        ]
+    },
+    courses: {
+        patterns: ['cours', 'formation', 'apprendre', 'étudier'],
+        responses: [
+            'Je peux vous aider à trouver le cours parfait ! Dites-moi ce qui vous intéresse :\n- Quel domaine vous attire ?\n- Avez-vous des prérequis spécifiques ?\n- Quel est votre niveau actuel ?',
+            'Pour vous recommander le meilleur cours, dites-moi :\n- Vos centres d\'intérêt\n- Votre niveau d\'expérience\n- Vos objectifs d\'apprentissage'
+        ]
+    },
+    registration: {
+        patterns: ['inscription', 's\'inscrire', 'inscrire', 'inscrit'],
+        responses: [
+            'Pour vous inscrire à un cours :\n1. Cliquez sur le cours qui vous intéresse\n2. Cliquez sur le bouton "S\'inscrire"\n3. Commencez votre apprentissage !',
+            'L\'inscription est simple :\n1. Trouvez un cours qui vous plaît\n2. Cliquez sur "S\'inscrire"\n3. Vous pouvez commencer immédiatement !'
+        ]
+    },
+    categories: {
+        patterns: ['catégorie', 'catégories', 'type de cours'],
+        responses: [
+            'Nos catégories incluent :\n- Science\n- Cybersecurity\n- Languages\n- Web Development\n- Machine Learning\n- Et bien d\'autres !\nDites-moi ce qui vous intéresse pour des recommandations spécifiques.',
+            'Vous pouvez explorer :\n- Science & Technologie\n- Cybersécurité\n- Langues\n- Développement Web\n- Intelligence Artificielle\n- Et plus encore !\nQuelle catégorie vous attire le plus ?'
+        ]
+    },
+    default: {
+        responses: [
+            'Je peux vous aider à trouver des cours adaptés à vos besoins. Dites-moi ce qui vous intéresse !',
+            'Je peux vous recommander des cours selon vos intérêts. Que souhaitez-vous apprendre ?',
+            'Je suis là pour vous aider à trouver le cours parfait. Parlez-moi de vos centres d\'intérêt !'
+        ]
+    }
+};
+
+function toggleChat() {
+    const widget = document.getElementById('chatbot-widget');
+    const button = document.getElementById('chat-button');
+    isChatOpen = !isChatOpen;
+    
+    if (isChatOpen) {
+        widget.classList.add('active');
+        button.classList.add('active');
+    } else {
+        widget.classList.remove('active');
+        button.classList.remove('active');
+    }
+}
+
+function handleKeyPress(event) {
+    if (event.key === 'Enter') {
+        sendMessage();
+    }
+}
+
+function addMessage(content, isUser = false) {
+    const messagesDiv = document.getElementById('chat-messages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+    
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content';
+    contentDiv.textContent = content;
+    
+    messageDiv.appendChild(contentDiv);
+    messagesDiv.appendChild(messageDiv);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function showTypingIndicator() {
+    const messagesDiv = document.getElementById('chat-messages');
+    const indicator = document.createElement('div');
+    indicator.className = 'typing-indicator';
+    indicator.innerHTML = '<span></span><span></span><span></span>';
+    indicator.id = 'typing-indicator';
+    messagesDiv.appendChild(indicator);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function removeTypingIndicator() {
+    const indicator = document.getElementById('typing-indicator');
+    if (indicator) {
+        indicator.remove();
+    }
+}
+
+function getCourseRecommendations(message) {
+    message = message.toLowerCase();
+    let recommendations = [];
+    
+    // Check each category for matching keywords
+    for (const category in courseRecommendations) {
+        const { keywords, courses } = courseRecommendations[category];
+        if (keywords.some(keyword => message.includes(keyword))) {
+            recommendations = recommendations.concat(courses);
+        }
+    }
+    
+    return recommendations;
+}
+
+function formatRecommendations(recommendations) {
+    if (recommendations.length === 0) {
+        return "Je n'ai pas trouvé de cours correspondant exactement à vos critères. Pourriez-vous me donner plus de détails sur ce que vous recherchez ?";
+    }
+    
+    return `Voici quelques cours qui pourraient vous intéresser :\n${recommendations.map(course => `- ${course}`).join('\n')}\n\nSouhaitez-vous plus d'informations sur l'un de ces cours ?`;
+}
+
+function getBotResponse(message) {
+    message = message.toLowerCase();
+    
+    // First check for course recommendations
+    const recommendations = getCourseRecommendations(message);
+    if (recommendations.length > 0) {
+        return formatRecommendations(recommendations);
+    }
+    
+    // If no specific course recommendations, check the general knowledge base
+    for (const category in knowledgeBase) {
+        if (category === 'default') continue;
+        
+        const patterns = knowledgeBase[category].patterns;
+        if (patterns.some(pattern => message.includes(pattern))) {
+            const responses = knowledgeBase[category].responses;
+            return responses[Math.floor(Math.random() * responses.length)];
+        }
+    }
+    
+    // If no match found, return a default response
+    const defaultResponses = knowledgeBase.default.responses;
+    return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
+}
+
+function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    addMessage(message, true);
+    input.value = '';
+    
+    showTypingIndicator();
+    
+    // Simulate typing delay
+    setTimeout(() => {
+        removeTypingIndicator();
+        const response = getBotResponse(message);
+        addMessage(response);
+    }, 1000);
+}
+</script> 

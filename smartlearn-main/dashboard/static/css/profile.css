@@ -1,0 +1,81 @@
+/* Profile Container */
+.profile-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 25px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+/* User Information */
+.user-info {
+    background: #e3f2fd;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+.user-info p {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.user-info strong {
+    color: #007bff;
+}
+
+/* Form Styling */
+.profile-container form {
+    margin-top: 20px;
+    text-align: left;
+}
+
+.profile-container input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+/* Buttons */
+.profile-container .btn {
+    width: 100%;
+    padding: 10px;
+    background: #007bff;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+}
+
+.profile-container .btn:hover {
+    background: #0056b3;
+}
+
+.profile-container .btn-danger {
+    background: #dc3545;
+}
+
+.profile-container .btn-danger:hover {
+    background: #b02a37;
+}
+
+/* Success Messages */
+.alert-success {
+    background: #d4edda;
+    color: #155724;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+    text-align: center;
+}
